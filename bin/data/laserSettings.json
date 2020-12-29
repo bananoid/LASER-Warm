@@ -1,0 +1,19 @@
+{
+    "Laser": {
+        "1_ARMED": "0",
+        "Custom": {
+            "color": "15, 211, 255, 255"
+        },
+        "Edit_Projector": "0",
+        "Interface": {
+            "Laser_mask_shapes": "0",
+            "Show_bitmap_mask": "0",
+            "Show_path_previews": "1",
+            "Show_preview": "1",
+            "Show_zones": "1",
+            "Use_bitmap_mask": "0"
+        },
+        "Master_Intensity": "0.513636",
+        "Test_Pattern": "0"
+    }
+}
