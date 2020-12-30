@@ -139,6 +139,8 @@ void ofApp :: showLaserEffect(int effectnum) {
   
   switch (currentLaserEffect) {
     case 0: {
+      int numCircles = 20;
+      int numPoints = 100;
       float speed = 2;
 
       polyLines.clear();
@@ -146,49 +148,56 @@ void ofApp :: showLaserEffect(int effectnum) {
       ofPolyline &poly = polyLines.back();
       
       
-      //lets scale the vol up to a 0-1 range
       scaledVol = ofMap(smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
-
-      //lets record the volume into an array
       volHistory.push_back( scaledVol );
-      
+            
       //if we are bigger the the size we want to record - lets drop the oldest value
       if( volHistory.size() >= 400 ){
         volHistory.erase(volHistory.begin(), volHistory.begin()+1);
       }
-      
-      float stepAng = TWO_PI / volHistory.size();
-      for (int i = 0; i < volHistory.size(); i++) {
-        ofPoint p;
+            
+
+      float stepAng = TWO_PI / numPoints;
+        
+      float rx = 0;
+      float ry = 0;
+      ofPoint centerOff;
+            
+      for (int j = 0; j < numCircles; j++) {
           
-//        float spread = 0.01;
-        float rad = volHistory[i] * 300 + 50 ;
-//
-//        float oscC = sin((elapsedTime-((float)i*spread)) *0.0012943245f * speed);
-//        oscC = ofMap(oscC, -1, 1, -1.3231234, 1.31345725);
-//
-//        float oscB = sin((elapsedTime-((float)i*spread)) * oscC * speed);
-//        oscB = ofMap(oscB, -1, 1, 0.92348456, 1.112345);
-//
-//        float oscA = sin(oscB * (elapsedTime-((float)i*spread)) * oscC * speed);
-//        oscA = ofMap(oscA, -1, 1, 0.930345, 1.1327632);
-//
-//        p.x = sin((elapsedTime-((float)i*spread)) * oscA * speed) * rad;
-//        p.y = cos((elapsedTime-((float)i*spread)) * oscB * speed) * rad;
-
+        centerOff.x = 0;
+//        centerOff.x = cos(j * 0.1 +  elapsedTime * 2.51234886538245133) * 60;
+        centerOff.y = sin(j * 0.1 + elapsedTime * 2.4238854384583452) * 100 * (0.2 + scaledVol * 1.5);
         
-        float angle = stepAng * i;
+        for (int i = 0; i < numPoints; i++) {
+          ofPoint p;
+            
+//          float rad = scaledVol;
+          float rad = 0.4 + volHistory[volHistory.size()-1 - j] * 0.4;
+          
+  
+          float angle = stepAng * i;
+          
+          p.x = cos( angle ) * rad * rx;
+          p.y = sin( angle ) * rad * ry;
+          
+          p.x+=laserWidth/2;
+          p.y+=laserHeight/2;
+          
+          p.x += centerOff.x;
+          p.y += centerOff.y;
+          
+          poly.addVertex(p.x, p.y);
+          
+        }
         
-        p.x = cos( angle ) * rad;
-        p.y = sin( angle ) * rad;
-        
-        p.x+=laserWidth/2;
-        p.y+=laserHeight/2;
-        
-        poly.addVertex(p.x, p.y);
-        
+        rx += cos( elapsedTime * 0.1230563456 ) * 50;
+        ry += cos( elapsedTime * 0.2349956343 ) * 50;
       }
-
+      
+      poly = polyLines.back();
+      poly = poly.getSmoothed(10);
+      
       // LASER POLYLINES
       for(size_t i = 0; i<polyLines.size(); i++) {
         laser.drawPoly(polyLines[i], color );
