@@ -98,7 +98,7 @@ void ofApp::audioIn(ofSoundBuffer & input){
 void ofApp::update(){
     
   float deltaTime = ofClamp(ofGetLastFrameTime(), 0, 0.2);
-  elapsedTime+=deltaTime;
+  elapsedTime += deltaTime * 0.4;
     
     // prepares laser manager to receive new points
     laser.update();
@@ -139,9 +139,10 @@ void ofApp :: showLaserEffect(int effectnum) {
   
   switch (currentLaserEffect) {
     case 0: {
-      int numCircles = 20;
-      int numPoints = 100;
+      int numCircles = 30;
+      int numPoints = 40;
       float speed = 2;
+      float rInc = 1000 / numCircles;
 
       polyLines.clear();
       polyLines.push_back(ofPolyline());
@@ -166,14 +167,20 @@ void ofApp :: showLaserEffect(int effectnum) {
       for (int j = 0; j < numCircles; j++) {
           
         centerOff.x = 0;
-//        centerOff.x = cos(j * 0.1 +  elapsedTime * 2.51234886538245133) * 60;
-        centerOff.y = sin(j * 0.1 + elapsedTime * 2.4238854384583452) * 100 * (0.2 + scaledVol * 1.5);
+//        centerOff.x = cos(j * 0.1 +  elapsedTime * 2.51234886538245133) * 300 * (0.2 + scaledVol * 0.5);
+//        centerOff.y = sin(j * 0.1 + elapsedTime * 2.4238854384583452) * 100 * (0.2 + scaledVol * 0.5);
+        
+        centerOff.x = ofNoise(j * 0.07 +  elapsedTime * 1.11234886538245133);
+        centerOff.x = ofMap(centerOff.x, 0, 1 , -30, 30);
+        
+        centerOff.y = ofNoise(j * 0.03 +  elapsedTime * 0.083523231516723457);
+        centerOff.y = ofMap(centerOff.y, 0, 1 , -700, 700);
         
         for (int i = 0; i < numPoints; i++) {
           ofPoint p;
             
 //          float rad = scaledVol;
-          float rad = 0.4 + volHistory[volHistory.size()-1 - j] * 0.4;
+          float rad = volHistory[volHistory.size()-1 - j] * 0.4;
           
   
           float angle = stepAng * i;
@@ -191,12 +198,13 @@ void ofApp :: showLaserEffect(int effectnum) {
           
         }
         
-        rx += cos( elapsedTime * 0.1230563456 ) * 50;
-        ry += cos( elapsedTime * 0.2349956343 ) * 50;
+        rx += rInc;
+//        rx += cos( elapsedTime * 0.1230563456 ) * 50;
+        ry += cos( elapsedTime * 0.2349956343 ) * rInc;
       }
       
       poly = polyLines.back();
-      poly = poly.getSmoothed(10);
+      poly = poly.getSmoothed(5);
       
       // LASER POLYLINES
       for(size_t i = 0; i<polyLines.size(); i++) {
@@ -208,23 +216,7 @@ void ofApp :: showLaserEffect(int effectnum) {
     case 1: {
 
       // LASER LINES
-      int numlines = 10;
-      
-      for(int i = 0; i<numlines; i++) {
-        
-        float progress =(float)i/(float)(numlines-1);
-
-        float xpos =left + (width*progress);
-                  
-        laser.drawLine(ofPoint(xpos, top+height*0.1), ofPoint(xpos, top+height*0.4), ofColor(255));
-              
-        ofColor c;
-        c.setHsb(progress*255, 255, 255);
-                
-        laser.drawLine(ofPoint(xpos, top+height*0.6), ofPoint(xpos, top+height*0.9), c);
-    
-      }
-
+  
       break;
 
     }
