@@ -6,7 +6,6 @@
 #include "ofxLaserDacLaserdock.h"
 #include "ofxLaserDacIDN.h"
 #include "ofxLaserDacHelios.h"
-
 #include "ofxGui.h"
 
 //#define USE_ETHERDREAM
@@ -73,6 +72,6 @@ public:
   int bufferSize = 256;
   
   void audioIn(ofSoundBuffer & input);
-
+  
 };
 

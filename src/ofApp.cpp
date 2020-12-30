@@ -15,7 +15,7 @@ void ofApp::setup(){
 #if defined(USE_LASERDOCK) || defined(USE_HELIOS)
   // NB with laser dock you can pass a serial number,
   // with HeliosDAC you can pass a device name
-  dac.setup("Helios 825438257");
+  dac.setup("Helios 825438258");
 #else
   // load the IP address of the Etherdream / IDN DAC
   ofBuffer buffer = ofBufferFromFile("dacIP.txt");
@@ -57,6 +57,7 @@ void ofApp::setup(){
   settings.numInputChannels = 2;
   settings.bufferSize = bufferSize;
   soundStream.setup(settings);
+  
 }
 
 //--------------------------------------------------------------
@@ -134,7 +135,56 @@ void ofApp :: showLaserEffect(int effectnum) {
   float height = laserHeight*0.8;
   
   switch (currentLaserEffect) {
+    case 0: {
+      float speed = 2;
+
+      polyLines.clear();
+      polyLines.push_back(ofPolyline());
+      ofPolyline &poly = polyLines.back();
       
+      
+      //lets scale the vol up to a 0-1 range
+      scaledVol = ofMap(smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
+
+      //lets record the volume into an array
+      volHistory.push_back( scaledVol );
+      
+      //if we are bigger the the size we want to record - lets drop the oldest value
+      if( volHistory.size() >= 400 ){
+        volHistory.erase(volHistory.begin(), volHistory.begin()+1);
+      }
+      
+      for (int i = 0; i < volHistory.size(); i++) {
+        ofPoint p;
+          
+        float spread = 0.01;
+        float rad = volHistory[i] * 300 + 50 ;
+        
+        float oscC = sin((elapsedTime-((float)i*spread)) *0.0012943245f * speed);
+        oscC = ofMap(oscC, -1, 1, -1.3231234, 1.31345725);
+        
+        float oscB = sin((elapsedTime-((float)i*spread)) * oscC * speed);
+        oscB = ofMap(oscB, -1, 1, 0.92348456, 1.112345);
+        
+        float oscA = sin(oscB * (elapsedTime-((float)i*spread)) * oscC * speed);
+        oscA = ofMap(oscA, -1, 1, 0.930345, 1.1327632);
+        
+        p.x = sin((elapsedTime-((float)i*spread)) * oscA * speed) * rad;
+        p.y = cos((elapsedTime-((float)i*spread)) * oscB * speed) * rad;
+        p.x+=laserWidth/2;
+        p.y+=laserHeight/2;
+        
+        poly.addVertex(p.x, p.y);
+        
+      }
+
+      // LASER POLYLINES
+      for(size_t i = 0; i<polyLines.size(); i++) {
+        laser.drawPoly(polyLines[i], color );
+      }
+        
+      break;
+    }
     case 1: {
 
       // LASER LINES
@@ -275,44 +325,7 @@ void ofApp :: showLaserEffect(int effectnum) {
     }
       
   }
-  
-  float speed = 1;
 
-  polyLines.clear();
-  polyLines.push_back(ofPolyline());
-  ofPolyline &poly = polyLines.back();
-  
-  
-  //lets scale the vol up to a 0-1 range
-  scaledVol = ofMap(smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
-
-  //lets record the volume into an array
-  volHistory.push_back( scaledVol );
-  
-  //if we are bigger the the size we want to record - lets drop the oldest value
-  if( volHistory.size() >= 400 ){
-    volHistory.erase(volHistory.begin(), volHistory.begin()+1);
-  }
-  
-  for (int i = 0; i < volHistory.size(); i++) {
-    ofPoint p;
-      
-    float spread = 0.04;
-    float rad = volHistory[i] * 300 + 50 ;
-    p.x = sin((elapsedTime-((float)i*spread)) *1.83f * speed) * rad;
-    p.y = sin((elapsedTime-((float)i*spread)) *2.71f *speed) * rad;
-    p.x+=laserWidth/2;
-    p.y+=laserHeight/2;
-    
-    poly.addVertex(p.x, p.y);
-    
-  }
-
-  // LASER POLYLINES
-  for(size_t i = 0; i<polyLines.size(); i++) {
-    laser.drawPoly(polyLines[i], color );
-  }
-  
 }
 
 
