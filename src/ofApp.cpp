@@ -39,6 +39,9 @@ void ofApp::setup(){
   ofSoundStreamSettings settings;
   auto devices = soundStream.getMatchingDevices("default");
   if(!devices.empty()){
+    
+    ofLogNotice() << "value: " << devices[0].name;
+
     settings.setInDevice(devices[0]);
   }
   
@@ -54,7 +57,7 @@ void ofApp::setup(){
   settings.setInListener(this);
   settings.sampleRate = 44100;
   settings.numOutputChannels = 0;
-  settings.numInputChannels = 2;
+  settings.numInputChannels = 1;
   settings.bufferSize = bufferSize;
   soundStream.setup(settings);
   
@@ -70,8 +73,8 @@ void ofApp::audioIn(ofSoundBuffer & input){
 
   //lets go through each sample and calculate the root mean square which is a rough way to calculate volume
   for (size_t i = 0; i < input.getNumFrames(); i++){
-    left[i]    = input[i*2]*0.5;
-    right[i]  = input[i*2+1]*0.5;
+    left[i]    = input[i]*0.5;
+    right[i]  = input[i]*0.5;
 
     curVol += left[i] * left[i];
     curVol += right[i] * right[i];
@@ -154,23 +157,31 @@ void ofApp :: showLaserEffect(int effectnum) {
         volHistory.erase(volHistory.begin(), volHistory.begin()+1);
       }
       
+      float stepAng = TWO_PI / volHistory.size();
       for (int i = 0; i < volHistory.size(); i++) {
         ofPoint p;
           
-        float spread = 0.01;
+//        float spread = 0.01;
         float rad = volHistory[i] * 300 + 50 ;
+//
+//        float oscC = sin((elapsedTime-((float)i*spread)) *0.0012943245f * speed);
+//        oscC = ofMap(oscC, -1, 1, -1.3231234, 1.31345725);
+//
+//        float oscB = sin((elapsedTime-((float)i*spread)) * oscC * speed);
+//        oscB = ofMap(oscB, -1, 1, 0.92348456, 1.112345);
+//
+//        float oscA = sin(oscB * (elapsedTime-((float)i*spread)) * oscC * speed);
+//        oscA = ofMap(oscA, -1, 1, 0.930345, 1.1327632);
+//
+//        p.x = sin((elapsedTime-((float)i*spread)) * oscA * speed) * rad;
+//        p.y = cos((elapsedTime-((float)i*spread)) * oscB * speed) * rad;
+
         
-        float oscC = sin((elapsedTime-((float)i*spread)) *0.0012943245f * speed);
-        oscC = ofMap(oscC, -1, 1, -1.3231234, 1.31345725);
+        float angle = stepAng * i;
         
-        float oscB = sin((elapsedTime-((float)i*spread)) * oscC * speed);
-        oscB = ofMap(oscB, -1, 1, 0.92348456, 1.112345);
+        p.x = cos( angle ) * rad;
+        p.y = sin( angle ) * rad;
         
-        float oscA = sin(oscB * (elapsedTime-((float)i*spread)) * oscC * speed);
-        oscA = ofMap(oscA, -1, 1, 0.930345, 1.1327632);
-        
-        p.x = sin((elapsedTime-((float)i*spread)) * oscA * speed) * rad;
-        p.y = cos((elapsedTime-((float)i*spread)) * oscB * speed) * rad;
         p.x+=laserWidth/2;
         p.y+=laserHeight/2;
         
