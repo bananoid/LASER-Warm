@@ -1,6 +1,6 @@
 {
     "Projector1": {
-        "1_ARMED": "1",
+        "1_ARMED": "0",
         "Colour_calibration": {
             "blue_0": "0",
             "blue_100": "1",

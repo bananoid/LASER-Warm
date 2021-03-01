@@ -73,5 +73,6 @@ public:
   
   void audioIn(ofSoundBuffer & input);
   
+  void drawWarm(bool invertAxes);
 };
 

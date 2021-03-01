@@ -78,6 +78,7 @@ void ofApp::audioIn(ofSoundBuffer & input){
 
     curVol += left[i] * left[i];
     curVol += right[i] * right[i];
+    
     numCounted+=2;
   }
   
@@ -87,8 +88,9 @@ void ofApp::audioIn(ofSoundBuffer & input){
   // this is how we get the root of rms :)
   curVol = sqrt( curVol );
   
-  smoothedVol *= 0.93;
-  smoothedVol += 0.07 * curVol;
+//  smoothedVol *= 0.93;
+//  smoothedVol += 0.07 * curVol;
+  smoothedVol += (curVol - smoothedVol) * 0.006;
   
   bufferCounter++;
   
@@ -136,110 +138,24 @@ void ofApp :: showLaserEffect(int effectnum) {
   float bottom = laserHeight*0.9;
   float width = laserWidth*0.8;
   float height = laserHeight*0.8;
-  
+    
   switch (currentLaserEffect) {
     case 0: {
-      int numCircles = 30;
-      int numPoints = 40;
-      float speed = 2;
-      float rInc = 1000 / numCircles;
-
-      polyLines.clear();
-      polyLines.push_back(ofPolyline());
-      ofPolyline &poly = polyLines.back();
       
-      
-      scaledVol = ofMap(smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
-      volHistory.push_back( scaledVol );
-            
-      //if we are bigger the the size we want to record - lets drop the oldest value
-      if( volHistory.size() >= 400 ){
-        volHistory.erase(volHistory.begin(), volHistory.begin()+1);
-      }
-            
-
-      float stepAng = TWO_PI / numPoints;
-        
-      float rx = 0;
-      float ry = 0;
-      ofPoint centerOff;
-            
-      for (int j = 0; j < numCircles; j++) {
-          
-        centerOff.x = 0;
-//        centerOff.x = cos(j * 0.1 +  elapsedTime * 2.51234886538245133) * 300 * (0.2 + scaledVol * 0.5);
-//        centerOff.y = sin(j * 0.1 + elapsedTime * 2.4238854384583452) * 100 * (0.2 + scaledVol * 0.5);
-        
-        centerOff.x = ofNoise(j * 0.07 +  elapsedTime * 1.11234886538245133);
-        centerOff.x = ofMap(centerOff.x, 0, 1 , -30, 30);
-        
-        centerOff.y = ofNoise(j * 0.03 +  elapsedTime * 0.083523231516723457);
-        centerOff.y = ofMap(centerOff.y, 0, 1 , -700, 700);
-        
-        for (int i = 0; i < numPoints; i++) {
-          ofPoint p;
-            
-//          float rad = scaledVol;
-          float rad = volHistory[volHistory.size()-1 - j] * 0.4;
-          
-  
-          float angle = stepAng * i;
-          
-          p.x = cos( angle ) * rad * rx;
-          p.y = sin( angle ) * rad * ry;
-          
-          p.x+=laserWidth/2;
-          p.y+=laserHeight/2;
-          
-          p.x += centerOff.x;
-          p.y += centerOff.y;
-          
-          poly.addVertex(p.x, p.y);
-          
-        }
-        
-        rx += rInc;
-//        rx += cos( elapsedTime * 0.1230563456 ) * 50;
-        ry += cos( elapsedTime * 0.2349956343 ) * rInc;
-      }
-      
-      poly = polyLines.back();
-      poly = poly.getSmoothed(5);
-      
-      // LASER POLYLINES
-      for(size_t i = 0; i<polyLines.size(); i++) {
-        laser.drawPoly(polyLines[i], color );
-      }
-        
+      drawWarm(false);
       break;
     }
     case 1: {
 
       // LASER LINES
-  
+      drawWarm(true);
       break;
 
     }
     
       
     case 2: {
-      
-      // LASER LINES ANIMATING
-      int numlines = 10;
-      
-      for(int i = 0; i<numlines; i++) {
-        
-        float progress =(float)i/(float)(numlines-1);
-        
-        float xpos =left + (width*progress) + (sin(elapsedTime*4+i*0.5)*width*0.05);
-        
-        laser.drawLine(ofPoint(xpos, top+height*0.1), ofPoint(xpos, top+height*0.4), ofColor(255));
-        ofColor c;
-        c.setHsb(progress*255, 255, 255);
-        laser.drawLine(ofPoint(xpos, top+height*0.6), ofPoint(xpos, top+height*0.9), c);
-        
-      }
-      
+     
       break;
       
     }
@@ -340,6 +256,89 @@ void ofApp :: showLaserEffect(int effectnum) {
 
 }
 
+void ofApp::drawWarm(bool invertAxes){
+  int numCircles = 40;
+  int numPoints = 100;
+  float speed = 2;
+  float rInc = 1000 / numCircles;
+
+  polyLines.clear();
+  polyLines.push_back(ofPolyline());
+  ofPolyline &poly = polyLines.back();
+  
+  
+//  scaledVol = ofMap(smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
+  scaledVol = 1;
+  
+  volHistory.push_back( scaledVol );
+        
+  //if we are bigger the the size we want to record - lets drop the oldest value
+  if( volHistory.size() >= 400 ){
+    volHistory.erase(volHistory.begin(), volHistory.begin()+1);
+  }
+        
+
+  float stepAng = TWO_PI / numPoints;
+    
+  float rx = 0;
+  float ry = 0;
+  ofPoint centerOff;
+        
+  for (int j = 0; j < numCircles; j++) {
+      
+    centerOff.x = 0;
+//        centerOff.x = cos(j * 0.1 +  elapsedTime * 2.51234886538245133) * 300 * (0.2 + scaledVol * 0.5);
+//        centerOff.y = sin(j * 0.1 + elapsedTime * 2.4238854384583452) * 100 * (0.2 + scaledVol * 0.5);
+    
+    centerOff.x = ofNoise(j * 0.07 +  elapsedTime * 1.11234886538245133);
+    centerOff.x = ofMap(centerOff.x, 0, 1 , -30, 30);
+    
+    centerOff.y = ofNoise(j * 0.03 +  elapsedTime * 0.083523231516723457);
+    centerOff.y = ofMap(centerOff.y, 0, 1 , -700, 700);
+    
+    for (int i = 0; i < numPoints; i++) {
+      ofPoint p;
+        
+//          float rad = scaledVol;
+      int audioIndex = volHistory.size()-1 - j * 1.0;
+      
+      float rad = volHistory[audioIndex] * 0.4;
+      
+
+      float angle = stepAng * i;
+      
+      p.x = cos( angle ) * rad * rx;
+      p.y = sin( angle ) * rad * ry;
+      
+      p.x+=laserWidth/2;
+      p.y+=laserHeight/2;
+      
+      p.x += centerOff.x;
+      p.y += centerOff.y;
+      
+      if(invertAxes){
+        poly.addVertex(p.y, p.x);
+      }else{
+        poly.addVertex(p.x, p.y);
+      }
+      
+      
+      
+    }
+    
+    rx += rInc;
+//        rx += cos( elapsedTime * 0.1230563456 ) * 50;
+    ry += cos( elapsedTime * 0.2349956343 ) * rInc;
+  }
+  
+  poly = polyLines.back();
+  poly = poly.getSmoothed(10);
+  
+  // LASER POLYLINES
+  for(size_t i = 0; i<polyLines.size(); i++) {
+    laser.drawPoly(polyLines[i], color );
+  }
+}
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){

@@ -1,8 +1,8 @@
 {
     "Laser": {
-        "1_ARMED": "1",
+        "1_ARMED": "0",
         "Custom": {
-            "color": "255, 0, 18, 255"
+            "color": "24, 83, 0, 255"
         },
         "Edit_Projector": "0",
         "Interface": {
