@@ -15,7 +15,7 @@ void ofApp::setup(){
 #if defined(USE_LASERDOCK) || defined(USE_HELIOS)
   // NB with laser dock you can pass a serial number,
   // with HeliosDAC you can pass a device name
-  dac.setup("Helios 825438258");
+  dac.setup("Helios 959590454");
 #else
   // load the IP address of the Etherdream / IDN DAC
   ofBuffer buffer = ofBufferFromFile("dacIP.txt");
@@ -142,13 +142,15 @@ void ofApp :: showLaserEffect(int effectnum) {
   switch (currentLaserEffect) {
     case 0: {
       
-      drawWarm(false);
+//      drawWarm(false);
+      drawCircle(false);
       break;
     }
     case 1: {
 
       // LASER LINES
-      drawWarm(true);
+//      drawWarm(true);
+      drawCircle(true);
       break;
 
     }
@@ -163,23 +165,7 @@ void ofApp :: showLaserEffect(int effectnum) {
       
     case 3: {
       
-      // LASER CIRCLES
-      int numCircles = 6;
-      
-      for(int i = 0; i<numCircles; i++) {
-        
-        float progress =(float)i/(float)(numCircles-1);
-        
-        float xpos =left + (width*progress);
-        
-        laser.drawCircle(ofPoint(xpos, top+height*0.3),30, ofColor(255));
-        ofColor c;
-        c.setHsb(progress*255, 255, 255);
-        
-        laser.drawCircle(ofPoint(xpos, top+height*0.7), 30, c);
-        
-      }
-      
+      drawWarm(false);
       break;
       
     }
@@ -337,6 +323,93 @@ void ofApp::drawWarm(bool invertAxes){
   // LASER POLYLINES
   for(size_t i = 0; i<polyLines.size(); i++) {
     laser.drawPoly(polyLines[i], color );
+//    laser.drawDot(polyLines[i], color);
+  }
+}
+
+void ofApp::drawCircle(bool withPoints){
+  int numCircles = 1;
+  int numPoints = withPoints ? 40 : 100;
+  float speed = 2;
+  float rInc = 1000 / numCircles;
+
+  polyLines.clear();
+  polyLines.push_back(ofPolyline());
+  ofPolyline &poly = polyLines.back();
+  
+  
+//  scaledVol = ofMap(smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
+  scaledVol = 1;
+  
+  volHistory.push_back( scaledVol );
+        
+  //if we are bigger the the size we want to record - lets drop the oldest value
+  if( volHistory.size() >= 400 ){
+    volHistory.erase(volHistory.begin(), volHistory.begin()+1);
+  }
+        
+
+  float stepAng = TWO_PI / numPoints;
+    
+  float rx = 1;
+  float ry = 1;
+  ofPoint centerOff;
+        
+  for (int j = 0; j < numCircles; j++) {
+      
+    centerOff.x = 0;
+//        centerOff.x = cos(j * 0.1 +  elapsedTime * 2.51234886538245133) * 300 * (0.2 + scaledVol * 0.5);
+//        centerOff.y = sin(j * 0.1 + elapsedTime * 2.4238854384583452) * 100 * (0.2 + scaledVol * 0.5);
+    
+//    centerOff.x = ofNoise(j * 0.07 +  elapsedTime * 1.11234886538245133);
+//    centerOff.x = ofMap(centerOff.x, 0, 1 , -30, 30);
+//
+//    centerOff.y = ofNoise(j * 0.03 +  elapsedTime * 0.083523231516723457);
+//    centerOff.y = ofMap(centerOff.y, 0, 1 , -700, 700);
+    
+    for (int i = 0; i <= numPoints; i++) {
+      ofPoint p;
+        
+//          float rad = scaledVol;
+      int audioIndex = volHistory.size()-1 - j * 1.0;
+      float audio = volHistory[audioIndex];
+      
+      float rad = laserWidth * 0.4;
+//      rad = laserWidth * 0.4;
+      rad = 0.4  * laserWidth + ofNoise(i * 0.07 +  elapsedTime * 1.11234886538245133, elapsedTime * 0.912384) * laserWidth * 0.1;
+      
+
+      float angle = stepAng * i;
+      
+      p.x = cos( angle ) * rad * rx;
+      p.y = sin( angle ) * rad * ry;
+      
+      p.x+=laserWidth/2;
+      p.y+=laserHeight/2;
+      
+      p.x += centerOff.x;
+      p.y += centerOff.y;
+      
+      poly.addVertex(p.x, p.y);
+      
+      if(withPoints){
+        laser.drawDot(p, color);
+      }
+    }
+    
+  }
+  
+  poly = polyLines.back();
+//  poly = poly.getSmoothed(10);
+  
+  // LASER POLYLINES
+//  float
+  for(size_t i = 0; i<polyLines.size(); i++) {
+    if(withPoints){
+//      laser.drawDot(poly.getVertices()[i], color);
+    }else{
+      laser.drawPoly(polyLines[i], color );
+    }
   }
 }
 
