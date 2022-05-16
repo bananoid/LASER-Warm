@@ -15,7 +15,7 @@ void ofApp::setup(){
 #if defined(USE_LASERDOCK) || defined(USE_HELIOS)
   // NB with laser dock you can pass a serial number,
   // with HeliosDAC you can pass a device name
-  dac.setup("Helios 959590454");
+  dac.setup("Helios 825438258");
 #else
   // load the IP address of the Etherdream / IDN DAC
   ofBuffer buffer = ofBufferFromFile("dacIP.txt");
@@ -30,18 +30,36 @@ void ofApp::setup(){
   // if you don't want to manage your own GUI for your app you can add extra
   // params to the laser GUI
   laser.addCustomParameter(color.set("color", ofColor(0, 255, 0), ofColor(0), ofColor(255)));
-    laser.initGui(true);
-    currentLaserEffect = 0;
-    numLaserEffects = 8;
-   
+  laser.addCustomParameter(numCircles.set("Num Circles", 40, 1, 100));
+  laser.addCustomParameter(numPoints.set("Num Points", 100, 1, 100));
+  laser.addCustomParameter(rotSpeed.set("Rot Speed", 0.1, 0, .5));
+  laser.addCustomParameter(waveSpeed.set("Wave Speed", 1., 0, 10));
+  laser.addCustomParameter(maxSize.set("maxSize", 1., 0, 1));
+  laser.addCustomParameter(smothing.set("Smothing", 0., 0, 10));
+
+  
+  laser.addCustomParameter(radius.set("Radius", 0.4, 0, 1));
+  
+  
+//  ofParameter<int> numCircles;
+//  ofParameter<int> numPoints;
+//  ofParameter<float> speed;
+  
+//  int numCircles = 40;
+//  int numPoints = 100;
+//  float speed = 2;
+  
+  laser.initGui(true);
+  currentLaserEffect = 0;
+  numLaserEffects = 8;
+ 
   //Audio Setup
   soundStream.printDeviceList();
   ofSoundStreamSettings settings;
-  auto devices = soundStream.getMatchingDevices("default");
+  auto devices = soundStream.getMatchingDevices("USB");
   if(!devices.empty()){
     
     ofLogNotice() << "value: " << devices[0].name;
-
     settings.setInDevice(devices[0]);
   }
   
@@ -90,7 +108,16 @@ void ofApp::audioIn(ofSoundBuffer & input){
   
 //  smoothedVol *= 0.93;
 //  smoothedVol += 0.07 * curVol;
-  smoothedVol += (curVol - smoothedVol) * 0.006;
+//  smoothedVol += (curVol - smoothedVol) * 0.1;
+  smoothedVol = curVol;
+  
+  volHistory.push_back( curVol );
+  
+        
+  //if we are bigger the the size we want to record - lets drop the oldest value
+  if( volHistory.size() >= 400 ){
+    volHistory.erase(volHistory.begin(), volHistory.begin()+1);
+  }
   
   bufferCounter++;
   
@@ -102,8 +129,8 @@ void ofApp::update(){
   float deltaTime = ofClamp(ofGetLastFrameTime(), 0, 0.2);
   elapsedTime += deltaTime * 0.4;
     
-    // prepares laser manager to receive new points
-    laser.update();
+  // prepares laser manager to receive new points
+  laser.update();
   
 }
 
@@ -114,18 +141,16 @@ void ofApp::draw() {
   
   int ypos = laserHeight+20;
   ofDrawBitmapString("Current Effect : "+ofToString(currentLaserEffect), 400, ypos+=30);
-    ofDrawBitmapString("TAB to change view, F to toggle full screen", 400, ypos+=30);
+  ofDrawBitmapString("TAB to change view, F to toggle full screen", 400, ypos+=30);
   ofDrawBitmapString("Left and Right Arrows to change current effect", 400, ypos+=30);
   ofDrawBitmapString("Mouse to draw polylines, 'C' to clear", 400, ypos+=30);
     
-    showLaserEffect(currentLaserEffect);
+  showLaserEffect(currentLaserEffect);
 
-    // sends points to the DAC
-    laser.send();
+  // sends points to the DAC
+  laser.send();
 
-    laser.drawUI();
-
-
+  laser.drawUI();
 }
 
 
@@ -147,9 +172,7 @@ void ofApp :: showLaserEffect(int effectnum) {
       break;
     }
     case 1: {
-
       // LASER LINES
-//      drawWarm(true);
       drawCircle(true);
       break;
 
@@ -157,7 +180,7 @@ void ofApp :: showLaserEffect(int effectnum) {
     
       
     case 2: {
-     
+      drawWarm(true);
       break;
       
     }
@@ -243,25 +266,22 @@ void ofApp :: showLaserEffect(int effectnum) {
 }
 
 void ofApp::drawWarm(bool invertAxes){
-  int numCircles = 40;
-  int numPoints = 100;
-  float speed = 2;
-  float rInc = 1000 / numCircles;
+  float rInc = 40000 / numCircles / numPoints;
 
   polyLines.clear();
   polyLines.push_back(ofPolyline());
   ofPolyline &poly = polyLines.back();
   
   
-//  scaledVol = ofMap(smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
-  scaledVol = 1;
+  scaledVol = ofMap(smoothedVol, 0.0, .1, 0.2, 1.0, true);
+//  scaledVol = 1;
   
-  volHistory.push_back( scaledVol );
+//  volHistory.push_back( scaledVol );
         
   //if we are bigger the the size we want to record - lets drop the oldest value
-  if( volHistory.size() >= 400 ){
-    volHistory.erase(volHistory.begin(), volHistory.begin()+1);
-  }
+//  if( volHistory.size() >= 400 ){
+//    volHistory.erase(volHistory.begin(), volHistory.begin()+1);
+//  }
         
 
   float stepAng = TWO_PI / numPoints;
@@ -272,15 +292,16 @@ void ofApp::drawWarm(bool invertAxes){
         
   for (int j = 0; j < numCircles; j++) {
       
-    centerOff.x = 0;
+//    centerOff.x = 0;
 //        centerOff.x = cos(j * 0.1 +  elapsedTime * 2.51234886538245133) * 300 * (0.2 + scaledVol * 0.5);
 //        centerOff.y = sin(j * 0.1 + elapsedTime * 2.4238854384583452) * 100 * (0.2 + scaledVol * 0.5);
     
-    centerOff.x = ofNoise(j * 0.07 +  elapsedTime * 1.11234886538245133);
+    centerOff.x = ofNoise(j * 0.07 +  elapsedTime * 1.11234886538245133 * waveSpeed) * scaledVol;
     centerOff.x = ofMap(centerOff.x, 0, 1 , -30, 30);
     
-    centerOff.y = ofNoise(j * 0.03 +  elapsedTime * 0.083523231516723457);
-    centerOff.y = ofMap(centerOff.y, 0, 1 , -700, 700);
+    
+    centerOff.y = ofNoise(j * 0.03 +  elapsedTime * 0.083523231516723457 * waveSpeed) * scaledVol;
+    centerOff.y = ofMap(centerOff.y, 0, 1 , -700 * maxSize , 700 * maxSize);
     
     for (int i = 0; i < numPoints; i++) {
       ofPoint p;
@@ -288,7 +309,7 @@ void ofApp::drawWarm(bool invertAxes){
 //          float rad = scaledVol;
       int audioIndex = volHistory.size()-1 - j * 1.0;
       
-      float rad = volHistory[audioIndex] * 0.4;
+      float rad = volHistory[audioIndex] * radius;
       
 
       float angle = stepAng * i;
@@ -314,11 +335,11 @@ void ofApp::drawWarm(bool invertAxes){
     
     rx += rInc;
 //        rx += cos( elapsedTime * 0.1230563456 ) * 50;
-    ry += cos( elapsedTime * 0.2349956343 ) * rInc;
+    ry += cos( elapsedTime * rotSpeed ) * rInc;
   }
   
   poly = polyLines.back();
-  poly = poly.getSmoothed(10);
+  poly = poly.getSmoothed(smothing);
   
   // LASER POLYLINES
   for(size_t i = 0; i<polyLines.size(); i++) {
@@ -338,15 +359,10 @@ void ofApp::drawCircle(bool withPoints){
   ofPolyline &poly = polyLines.back();
   
   
-//  scaledVol = ofMap(smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
-  scaledVol = 1;
+  scaledVol = ofMap(smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
+//  scaledVol = 1;
   
-  volHistory.push_back( scaledVol );
-        
-  //if we are bigger the the size we want to record - lets drop the oldest value
-  if( volHistory.size() >= 400 ){
-    volHistory.erase(volHistory.begin(), volHistory.begin()+1);
-  }
+  
         
 
   float stepAng = TWO_PI / numPoints;
@@ -371,12 +387,16 @@ void ofApp::drawCircle(bool withPoints){
       ofPoint p;
         
 //          float rad = scaledVol;
-      int audioIndex = volHistory.size()-1 - j * 1.0;
-      float audio = volHistory[audioIndex];
+//      int audioIndex = (int)(((float)volHistory.size() / (float)numPoints) * i * 0.1) % volHistory.size();
+//      float audio = volHistory[audioIndex];
+    
+      int audioIndex = (int)(((float)left.size() / (float)numPoints) * i * 1) % left.size();
+      float audio = left[audioIndex];
       
       float rad = laserWidth * 0.4;
 //      rad = laserWidth * 0.4;
-      rad = 0.4  * laserWidth + ofNoise(i * 0.07 +  elapsedTime * 1.11234886538245133, elapsedTime * 0.912384) * laserWidth * 0.1;
+      rad = 0.4  * laserWidth + ofNoise(i * 0.07 +  elapsedTime * 1.11234886538245133, elapsedTime * 0.912384) * laserWidth * 0.2;
+      rad *= ofMap(audio, -1.0,1.0, 0.3, 1.0, false);
       
 
       float angle = stepAng * i;

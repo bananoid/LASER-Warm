@@ -1,6 +1,6 @@
 {
     "Projector1": {
-        "1_ARMED": "0",
+        "1_ARMED": "1",
         "Colour_calibration": {
             "blue_0": "0",
             "blue_100": "1",
@@ -30,24 +30,24 @@
                 "Sync_to_Target_framerate": "0",
                 "Target_framerate__experimental_": "25"
             },
-            "Blank_points_after": "1",
-            "Blank_points_before": "1",
+            "Blank_points_after": "0",
+            "Blank_points_before": "0",
             "Colour_change_offset": "0",
             "Flip_X": "0",
             "Flip_Y": "0",
             "Laser_on_while_moving": "0",
-            "Move_Speed": "5",
-            "On_points_after": "1",
-            "On_points_before": "1",
+            "Move_Speed": "50",
+            "On_points_after": "0",
+            "On_points_before": "0",
             "Output_position_offset": "0, 0",
-            "Output_rotation": "0",
-            "Points_per_second": "30000"
+            "Output_rotation": "90",
+            "Points_per_second": "60000"
         },
         "Render_profiles": {
             "Default": {
                 "acceleration": "2",
                 "corner_threshold": "60",
-                "dot_max_points": "20",
+                "dot_max_points": "15",
                 "speed": "10"
             },
             "Fast": {
@@ -77,7 +77,7 @@
         "Zone1warp": {
             "ZoneTransform": {
                 "edit_subdivisions": "0",
-                "perspective": "1",
+                "perspective": "0",
                 "x_divisions": "1",
                 "y_divisions": "1"
             }

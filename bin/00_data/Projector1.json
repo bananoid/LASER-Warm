@@ -1,0 +1,86 @@
+{
+    "Projector1": {
+        "1_ARMED": "1",
+        "Colour_calibration": {
+            "blue_0": "0",
+            "blue_100": "1",
+            "blue_25": "0.25",
+            "blue_50": "0.5",
+            "blue_75": "0.75",
+            "green_0": "0",
+            "green_100": "1",
+            "green_25": "0.25",
+            "green_50": "0.5",
+            "green_75": "0.75",
+            "red_0": "1",
+            "red_100": "1",
+            "red_25": "1",
+            "red_50": "1",
+            "red_75": "1"
+        },
+        "Intensity": "1",
+        "Mute_Zones": {
+            "Zone1": "0"
+        },
+        "Projector_settings": {
+            "Advanced": {
+                "Optimise_shape_draw_order": "0",
+                "Smooth_home_position": "0",
+                "Speed_multiplier": "2",
+                "Sync_to_Target_framerate": "0",
+                "Target_framerate__experimental_": "120"
+            },
+            "Blank_points_after": "0",
+            "Blank_points_before": "1",
+            "Colour_change_offset": "6",
+            "Flip_X": "1",
+            "Flip_Y": "1",
+            "Laser_on_while_moving": "0",
+            "Move_Speed": "50",
+            "On_points_after": "0",
+            "On_points_before": "0",
+            "Output_position_offset": "-8.9, -20",
+            "Output_rotation": "-43.1633",
+            "Points_per_second": "20200"
+        },
+        "Render_profiles": {
+            "Default": {
+                "acceleration": "4",
+                "corner_threshold": "180",
+                "dot_max_points": "100",
+                "speed": "40"
+            },
+            "Fast": {
+                "acceleration": "4",
+                "corner_threshold": "180",
+                "dot_max_points": "100",
+                "speed": "40"
+            },
+            "High_quality": {
+                "acceleration": "4",
+                "corner_threshold": "180",
+                "dot_max_points": "100",
+                "speed": "39.9968"
+            }
+        },
+        "Reset_DAC": "0",
+        "Solo_Zones": {
+            "Zone1": "0"
+        },
+        "Test_Pattern": "0",
+        "Zone1": {
+            "Bottom_Edge": "0",
+            "Left_Edge": "0",
+            "Right_Edge": "0",
+            "Top_Edge": "0"
+        },
+        "Zone1warp": {
+            "ZoneTransform": {
+                "edit_subdivisions": "0",
+                "perspective": "1",
+                "x_divisions": "1",
+                "y_divisions": "1"
+            }
+        }
+    }
+}

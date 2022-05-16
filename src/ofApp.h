@@ -54,14 +54,20 @@ public:
     
   float elapsedTime;
 
-    ofParameter<ofColor> color;
+  ofParameter<ofColor> color;
+  ofParameter<int> numCircles;
+  ofParameter<int> numPoints;
+  ofParameter<float> rotSpeed;
+  ofParameter<float> waveSpeed;
+  ofParameter<float> maxSize;
+  ofParameter<float> radius;
   
-  
+  ofParameter<int> smothing;
   
   ofSoundStream soundStream;
   vector <float> left;
   vector <float> right;
-  vector <float> volHistory;
+  std::vector <float> volHistory;
   
   int   bufferCounter;
   int   drawCounter;

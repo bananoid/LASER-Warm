@@ -1,0 +1,27 @@
+{
+    "Laser": {
+        "1_ARMED": "1",
+        "Custom": {
+            "Num_Circles": "1",
+            "Num_Points": "1",
+            "Radius": "0.58256",
+            "Rot_Speed": "0.133581",
+            "Smothing": "0",
+            "Speed": "-5.67717",
+            "Wave_Speed": "2.76438",
+            "color": "255, 255, 255, 255",
+            "maxSize": "0.40167"
+        },
+        "Edit_Projector": "1",
+        "Interface": {
+            "Laser_mask_shapes": "0",
+            "Show_bitmap_mask": "0",
+            "Show_path_previews": "1",
+            "Show_preview": "1",
+            "Show_zones": "1",
+            "Use_bitmap_mask": "0"
+        },
+        "Master_Intensity": "1",
+        "Test_Pattern": "0"
+    }
+}
